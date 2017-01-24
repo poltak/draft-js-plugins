@@ -66,56 +66,57 @@ function onDropFile(config) {
         // Read files on client side
         (0, _file.readFiles)(data.files).then(function (placeholders) {
           // Add blocks for each image before uploading
-          var editorState = getEditorState();
-          placeholders.forEach(function (placeholder) {
-            editorState = addImage(editorState, placeholder.src);
-          });
-          setEditorState(editorState);
+          var editorStateWithPlaceholders = placeholders.reduce(function (editorState, placeholder) {
+            return addImage(editorState, placeholder.src);
+          }, getEditorState());
+          setEditorState(editorStateWithPlaceholders);
 
           // Perform upload
           handleUpload(data, function (uploadedFiles, _ref2) {
             var retainSrc = _ref2.retainSrc;
 
             // Success, remove 'progress' and 'src'
-            var newEditorState = getEditorState();
-            uploadedFiles.forEach(function (file) {
-              var blocks = (0, _block.getBlocksWhereEntityData)(newEditorState, function (block) {
+            var editorStateWithImages = uploadedFiles.reduce(function (editorState, file) {
+              var blocks = (0, _block.getBlocksWhereEntityData)(editorState, function (block) {
                 return block.src === file.src && block.progress !== undefined;
               });
+
               if (blocks.size) {
-                var newEditorStateOrBlockType = handleBlock ? handleBlock(newEditorState, newEditorState.getSelection(), file) : defaultBlockType;
+                var _newEditorStateOrBlockType = handleBlock ? handleBlock(editorState, editorState.getSelection(), file) : defaultBlockType;
 
-                newEditorState = (0, _replaceBlock2.default)((0, _modifyBlockData2.default)(newEditorState, blocks.first().get('key'), retainSrc ? { progress: undefined } : { progress: undefined, src: undefined }), blocks.first().get('key'), newEditorStateOrBlockType);
-              } else {
-                var _newEditorStateOrBlockType = handleBlock ? handleBlock(newEditorState, newEditorState.getSelection(), file) : defaultHandleBlock(newEditorState, newEditorState.getSelection(), file, defaultBlockType);
-
-                if (!_newEditorStateOrBlockType) {
-                  newEditorState = defaultHandleBlock(newEditorState, selection, file, defaultBlockType);
-                } else if (typeof _newEditorStateOrBlockType === 'string') {
-                  newEditorState = defaultHandleBlock(newEditorState, selection, file, _newEditorStateOrBlockType);
-                } else {
-                  newEditorState = _newEditorStateOrBlockType;
-                }
+                return (0, _replaceBlock2.default)((0, _modifyBlockData2.default)(editorState, blocks.first().get('key'), retainSrc ? { progress: undefined } : { progress: undefined, src: undefined }), blocks.first().get('key'), _newEditorStateOrBlockType);
               }
-            });
+
+              var newEditorStateOrBlockType = handleBlock ? handleBlock(editorState, editorState.getSelection(), file) : defaultHandleBlock(editorState, editorState.getSelection(), file, defaultBlockType);
+
+              if (!newEditorStateOrBlockType) {
+                return defaultHandleBlock(editorState, selection, file, defaultBlockType);
+              } else if (typeof newEditorStateOrBlockType === 'string') {
+                return defaultHandleBlock(editorState, selection, file, newEditorStateOrBlockType);
+              }
+
+              return newEditorStateOrBlockType;
+            }, getEditorState());
 
             // Propagate progress
             if (handleProgress) handleProgress(null);
-            setEditorState(newEditorState);
+            setEditorState(editorStateWithImages);
           }, function (err) {
             console.error(err);
           }, function (percent) {
             // On progress, set entity data's progress field
-            var newEditorState = getEditorState();
-            placeholders.forEach(function (placeholder) {
-              var blocks = (0, _block.getBlocksWhereEntityData)(newEditorState, function (p) {
+            var editorStateWithUpdatedPlaceholders = placeholders.reduce(function (editorState, placeholder) {
+              var blocks = (0, _block.getBlocksWhereEntityData)(editorState, function (p) {
                 return p.src === placeholder.src && p.progress !== undefined;
               });
+
               if (blocks.size) {
-                newEditorState = (0, _modifyBlockData2.default)(newEditorState, blocks.first().get('key'), { progress: percent });
+                return (0, _modifyBlockData2.default)(editorState, blocks.first().get('key'), { progress: percent });
               }
-            });
-            setEditorState(newEditorState);
+
+              return editorState;
+            }, getEditorState());
+            setEditorState(editorStateWithUpdatedPlaceholders);
 
             // Propagate progress
             if (handleProgress) {
