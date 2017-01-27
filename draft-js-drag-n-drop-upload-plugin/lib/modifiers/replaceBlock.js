@@ -4,8 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-exports.default = function (editorState, blockKey, newType) {
+exports.default = function (editorState, newBlock, oldBlock) {
   var content = editorState.getCurrentContent();
+  var blockKey = oldBlock.getKey();
 
   var targetRange = new _draftJs.SelectionState({
     anchorKey: blockKey,
@@ -14,11 +15,11 @@ exports.default = function (editorState, blockKey, newType) {
     focusOffset: 1
   });
 
-  // change the blocktype and remove the characterList entry with the block
-  content = _draftJs.Modifier.setBlockType(content, targetRange, newType);
+  var contentWithReplacedBlock = _draftJs.Modifier.replaceWithFragment(content, targetRange, _draftJs.BlockMapBuilder.createFromArray([newBlock]));
 
-  // force to new selection
-  var newState = _draftJs.EditorState.push(editorState, content, 'modify-block');
+  var newState = _draftJs.EditorState.push(editorState, contentWithReplacedBlock, 'modify-block');
+
+  // restore selection
   return _draftJs.EditorState.forceSelection(newState, editorState.getSelection());
 };
 

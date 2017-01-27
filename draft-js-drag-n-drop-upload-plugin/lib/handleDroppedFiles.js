@@ -10,25 +10,11 @@ exports.default = onDropFile;
 
 var _draftJs = require('draft-js');
 
-var _modifyBlockData = require('./modifiers/modifyBlockData');
-
-var _modifyBlockData2 = _interopRequireDefault(_modifyBlockData);
-
-var _replaceBlock = require('./modifiers/replaceBlock');
-
-var _replaceBlock2 = _interopRequireDefault(_replaceBlock);
-
-var _block = require('./utils/block');
-
 var _file = require('./utils/file');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function defaultHandleBlock(state, selection, data, blockType) {
-  return addBlock(state, selection, blockType, data);
-}
-
-var defaultBlockType = 'UNSTYLED';
+var getRandomString = function getRandomString() {
+  return Math.round(Math.random() * 10e10).toString(32);
+};
 
 function onDropFile(config) {
   return function onDropFileInner(selection, files, _ref) {
@@ -41,7 +27,8 @@ function onDropFile(config) {
     // TODO make sure the Form building also works fine with S3 direct upload
 
     // Get upload function from config or editor props
-    var addImage = config.addImage,
+    var addPlaceholder = config.addPlaceholder,
+        getPlaceholderBlock = config.getPlaceholderBlock,
         handleBlock = config.handleBlock,
         handleProgress = config.handleProgress,
         handleUpload = config.handleUpload;
@@ -55,73 +42,51 @@ function onDropFile(config) {
         var data = { files: [], formData: formData };
         for (var key in files) {
           // eslint-disable-line no-restricted-syntax
-          if (files[key] && files[key] instanceof File) {
-            data.formData.append('files', files[key]);
-            data.files.push(files[key]);
+          var file = files[key];
+          file.id = getRandomString();
+          if (file && file instanceof File) {
+            data.formData.append('files', file);
+            data.files.push(file);
           }
         }
 
         setEditorState(_draftJs.EditorState.acceptSelection(getEditorState(), selection));
 
         // Read files on client side
-        (0, _file.readFiles)(data.files).then(function (placeholders) {
+        (0, _file.readFiles)(data.files).then(function (filesWithContent) {
           // Add blocks for each image before uploading
-          var editorStateWithPlaceholders = placeholders.reduce(function (editorState, placeholder) {
-            return addImage(editorState, placeholder.src);
+          var editorStateWithPlaceholders = filesWithContent.reduce(function (editorState, file) {
+            return addPlaceholder(editorState, file);
           }, getEditorState());
           setEditorState(editorStateWithPlaceholders);
 
           // Perform upload
-          handleUpload(data, function (uploadedFiles, _ref2) {
-            var retainSrc = _ref2.retainSrc;
-
-            // Success, remove 'progress' and 'src'
+          handleUpload(data, function (uploadedFiles) {
             var editorStateWithImages = uploadedFiles.reduce(function (editorState, file) {
-              var blocks = (0, _block.getBlocksWhereEntityData)(editorState, function (block) {
-                return block.src === file.src && block.progress !== undefined;
-              });
+              var placeholderBlock = getPlaceholderBlock(editorState, file);
 
-              if (blocks.size) {
-                var _newEditorStateOrBlockType = handleBlock ? handleBlock(editorState, editorState.getSelection(), file) : defaultBlockType;
-
-                return (0, _replaceBlock2.default)((0, _modifyBlockData2.default)(editorState, blocks.first().get('key'), retainSrc ? { progress: undefined } : { progress: undefined, src: undefined }), blocks.first().get('key'), _newEditorStateOrBlockType);
+              if (!placeholderBlock) {
+                return editorState;
               }
 
-              var newEditorStateOrBlockType = handleBlock ? handleBlock(editorState, editorState.getSelection(), file) : defaultHandleBlock(editorState, editorState.getSelection(), file, defaultBlockType);
-
-              if (!newEditorStateOrBlockType) {
-                return defaultHandleBlock(editorState, selection, file, defaultBlockType);
-              } else if (typeof newEditorStateOrBlockType === 'string') {
-                return defaultHandleBlock(editorState, selection, file, newEditorStateOrBlockType);
-              }
-
-              return newEditorStateOrBlockType;
+              return handleBlock(editorState, placeholderBlock, file);
             }, getEditorState());
-
-            // Propagate progress
-            if (handleProgress) handleProgress(null);
             setEditorState(editorStateWithImages);
           }, function (err) {
             console.error(err);
+            // TODO: error handling should happen
           }, function (percent) {
             // On progress, set entity data's progress field
-            var editorStateWithUpdatedPlaceholders = placeholders.reduce(function (editorState, placeholder) {
-              var blocks = (0, _block.getBlocksWhereEntityData)(editorState, function (p) {
-                return p.src === placeholder.src && p.progress !== undefined;
-              });
+            var editorStateWithUpdatedPlaceholders = filesWithContent.reduce(function (editorState, file) {
+              var placeholderBlock = getPlaceholderBlock(editorState, file);
 
-              if (blocks.size) {
-                return (0, _modifyBlockData2.default)(editorState, blocks.first().get('key'), { progress: percent });
+              if (!placeholderBlock) {
+                return editorState;
               }
 
-              return editorState;
+              return handleProgress(editorState, placeholderBlock, percent);
             }, getEditorState());
             setEditorState(editorStateWithUpdatedPlaceholders);
-
-            // Propagate progress
-            if (handleProgress) {
-              handleProgress(percent);
-            }
           });
         });
 
