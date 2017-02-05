@@ -54,6 +54,11 @@ function onDropFile(config) {
 
         // Read files on client side
         (0, _file.readFiles)(data.files).then(function (filesWithContent) {
+          return filesWithContent.map(function (file, index) {
+            file.id = files[index].id; // eslint-disable-line no-param-reassign
+            return file;
+          });
+        }).then(function (filesWithContent) {
           // Add blocks for each image before uploading
           var editorStateWithPlaceholders = filesWithContent.reduce(function (editorState, file) {
             return addPlaceholder(editorState, file);
