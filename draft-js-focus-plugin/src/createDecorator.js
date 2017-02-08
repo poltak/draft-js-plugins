@@ -21,14 +21,23 @@ export default ({ theme, blockKeyStore }) => (WrappedComponent) => class BlockFo
 
   onClick = (evt) => {
     evt.preventDefault();
-    if (!this.props.blockProps.isFocused) {
-      this.props.blockProps.setFocusToBlock();
-    }
+    this.focusBlock();
+  }
+
+  onMouseDown = () => {
+    this.focusBlock();
   }
 
   onRemove = (evt) => {
     evt.preventDefault();
     this.props.blockProps.removeBlock();
+  }
+
+  focusBlock() {
+    const { isFocused, setFocusToBlock } = this.props.blockProps;
+    if (!isFocused) {
+      setFocusToBlock();
+    }
   }
 
   render() {
@@ -41,6 +50,7 @@ export default ({ theme, blockKeyStore }) => (WrappedComponent) => class BlockFo
       <WrappedComponent
         {...this.props}
         onClick={this.onClick}
+        omMouseDown={this.onMouseDown}
         onRemove={this.onRemove}
         className={combinedClassName}
       />
