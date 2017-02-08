@@ -89,7 +89,7 @@ export default class Toolbar extends Component {
     const { store, structure, theme } = this.props;
     return (<div
       className={theme.toolbarStyles.toolbar}
-      style={this.state.position}
+      style={this.state.style}
     >{structure.map((Element, index) => (<Element
       key={index}
       theme={theme.buttonStyles}

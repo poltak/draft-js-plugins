@@ -17,6 +17,6 @@ const getTop = getSingleDimension('height', 'top');
 export default function getToolbarPosition(params) {
   return {
     left: getLeft(params),
-    top: getTop(params),
+    top: getTop(params) - params.toolbar.height,
   };
 }
