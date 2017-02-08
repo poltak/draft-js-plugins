@@ -50,7 +50,7 @@ export default ({ theme, blockKeyStore }) => (WrappedComponent) => class BlockFo
       <WrappedComponent
         {...this.props}
         onClick={this.onClick}
-        omMouseDown={this.onMouseDown}
+        onMouseDown={this.onMouseDown}
         onRemove={this.onRemove}
         className={combinedClassName}
       />

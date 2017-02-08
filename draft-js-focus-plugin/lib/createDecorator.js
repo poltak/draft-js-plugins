@@ -93,7 +93,7 @@ exports.default = function (_ref) {
           var combinedClassName = isFocused ? (0, _unionClassNames2.default)(className, theme.focused) : (0, _unionClassNames2.default)(className, theme.unfocused);
           return _react2.default.createElement(WrappedComponent, _extends({}, this.props, {
             onClick: this.onClick,
-            omMouseDown: this.onMouseDown,
+            onMouseDown: this.onMouseDown,
             onRemove: this.onRemove,
             className: combinedClassName
           }));
