@@ -15,10 +15,19 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // Set selection of editor to next/previous block
 exports.default = function (getEditorState, setEditorState, mode, event) {
   var editorState = getEditorState();
-  var selectionKey = editorState.getSelection().getAnchorKey();
-  var newActiveBlock = mode === 'up' ? editorState.getCurrentContent().getBlockBefore(selectionKey) : editorState.getCurrentContent().getBlockAfter(selectionKey);
+  var content = editorState.getCurrentContent();
+  var selection = editorState.getSelection();
+  var anchorOffset = selection.getAnchorOffset();
+  var anchorKey = selection.getAnchorKey();
+  var selectedBlock = content.getBlockForKey(anchorKey);
 
-  if (newActiveBlock && newActiveBlock.get('key') === selectionKey) {
+  if (!selection.isCollapsed() || mode === 'up' && anchorOffset !== 0 || mode === 'down' && anchorOffset !== selectedBlock.getLength()) {
+    return;
+  }
+
+  var newActiveBlock = mode === 'up' ? editorState.getCurrentContent().getBlockBefore(anchorKey) : editorState.getCurrentContent().getBlockAfter(anchorKey);
+
+  if (newActiveBlock && newActiveBlock.get('key') === anchorKey) {
     return;
   }
 
@@ -28,12 +37,12 @@ exports.default = function (getEditorState, setEditorState, mode, event) {
     var node = document.querySelectorAll('[data-offset-key="' + offsetKey + '"]')[0];
     // set the native selection to the node so the caret is not in the text and
     // the selectionState matches the native selection
-    var selection = window.getSelection();
+    var nativeSelection = window.getSelection();
     var range = document.createRange();
     range.setStart(node, 0);
     range.setEnd(node, 0);
-    selection.removeAllRanges();
-    selection.addRange(range);
+    nativeSelection.removeAllRanges();
+    nativeSelection.addRange(range);
 
     var offset = mode === 'up' ? newActiveBlock.getLength() : 0;
     event.preventDefault();
