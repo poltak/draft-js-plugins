@@ -102,7 +102,9 @@ export default class MentionSuggestions extends Component {
     const anchorOffset = selection.getAnchorOffset();
 
     // the list should not be visible if a range is selected or the editor has no focus
-    if (!selection.isCollapsed() || !selection.getHasFocus()) return removeList();
+    if (!selection.isCollapsed() || !selection.getHasFocus()) {
+      return removeList();
+    }
 
     // identify the start & end positon of each search-text
     const offsetDetails = searches.map((offsetKey) => decodeOffsetKey(offsetKey));
@@ -131,7 +133,9 @@ export default class MentionSuggestions extends Component {
         (anchorOffset > start + 1 && anchorOffset <= end) // @ is in the text or at the end
       ));
 
-    if (selectionIsInsideWord.every((isInside) => isInside === false)) return removeList();
+    if (selectionIsInsideWord.every((isInside) => isInside === false)) {
+      return removeList();
+    }
 
     const lastActiveOffsetKey = this.activeOffsetKey;
     this.activeOffsetKey = selectionIsInsideWord
@@ -169,8 +173,7 @@ export default class MentionSuggestions extends Component {
   };
 
   onSearchChange = (editorState, selection, activeOffsetKey, lastActiveOffsetKey) => {
-    const { word } = getSearchText(editorState, selection);
-    const searchValue = word.substring(1, word.length);
+    const { matchingString: searchValue } = getSearchText(editorState, selection, this.props.mentionTrigger);
     if (this.lastSearchValue !== searchValue || activeOffsetKey !== lastActiveOffsetKey) {
       this.lastSearchValue = searchValue;
       this.props.onSearchChange({ value: searchValue });
@@ -243,7 +246,8 @@ export default class MentionSuggestions extends Component {
 
   commitSelection = () => {
     this.onMentionSelect(this.props.suggestions.get(this.state.focusedOptionIndex));
-    return 'handled';
+    // TODO: change to 'handled' once plugin editor is updated
+    return true;
   };
 
   openDropdown = () => {
