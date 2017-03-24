@@ -162,7 +162,7 @@ var MentionSuggestions = function (_Component) {
         var start = _ref4.start,
             end = _ref4.end;
         return start === 0 && anchorOffset === 1 && anchorOffset <= end || // @ is the first character
-        anchorOffset > start + 1 && anchorOffset <= end // @ is in the text or at the end
+        anchorOffset > start && anchorOffset <= end // @ is in the text or at the end
         ;
       });
 

@@ -130,7 +130,7 @@ export default class MentionSuggestions extends Component {
       .filter((leave) => leave !== undefined)
       .map(({ start, end }) => (
         (start === 0 && anchorOffset === 1 && anchorOffset <= end) || // @ is the first character
-        (anchorOffset > start + 1 && anchorOffset <= end) // @ is in the text or at the end
+        (anchorOffset > start && anchorOffset <= end) // @ is in the text or at the end
       ));
 
     if (selectionIsInsideWord.every((isInside) => isInside === false)) {
