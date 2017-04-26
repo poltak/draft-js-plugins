@@ -246,8 +246,7 @@ export default class MentionSuggestions extends Component {
 
   commitSelection = () => {
     this.onMentionSelect(this.props.suggestions.get(this.state.focusedOptionIndex));
-    // TODO: change to 'handled' once plugin editor is updated
-    return true;
+    return 'handled';
   };
 
   openDropdown = () => {

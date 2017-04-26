@@ -28,5 +28,5 @@ export default ({ onDrop = moveBlock }) => (
   setEditorState(onDrop(editorState, selection, blockKey));
 
   // NOTE: change to 'handled' once draft-js-plugin-editor is upgraded
-  return true;
+  return 'handled';
 };
