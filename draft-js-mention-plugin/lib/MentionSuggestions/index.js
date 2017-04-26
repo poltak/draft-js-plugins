@@ -258,7 +258,6 @@ var MentionSuggestions = function (_Component) {
       _this.props.store.setEditorState(_this.props.store.getEditorState());
     }, _this.commitSelection = function () {
       _this.onMentionSelect(_this.props.suggestions.get(_this.state.focusedOptionIndex));
-      // TODO: change to 'handled' once plugin editor is updated
       return 'handled';
     }, _this.openDropdown = function () {
       // This is a really nasty way of attaching & releasing the key related functions.

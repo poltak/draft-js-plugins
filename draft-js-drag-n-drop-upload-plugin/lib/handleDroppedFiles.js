@@ -95,15 +95,14 @@ function onDropFile(config) {
           });
         });
 
-        // draft-js-plugin-editor requires true
         return {
-          v: true
+          v: 'handled'
         };
       }();
 
       if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
     }
 
-    return undefined;
+    return 'not-handled';
   };
 }
