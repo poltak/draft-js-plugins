@@ -1,6 +1,6 @@
 {
   "name": "draft-js-buttons",
-  "version": "2.0.0-beta9",
+  "version": "2.0.0-rc3",
   "description": "Buttons for DraftJS",
   "author": {
     "name": "Nik Graf",
@@ -27,11 +27,11 @@
   },
   "license": "MIT",
   "dependencies": {
-    "union-class-names": "^1.0.0",
-    "draft-js": ">=0.9.1"
+    "union-class-names": "^1.0.0"
   },
   "peerDependencies": {
-    "react": "^15.0.0",
-    "react-dom": "^15.0.0"
+    "draft-js": "^0.10.1",
+    "react": "^15.5.0",
+    "react-dom": "^15.5.0"
   }
 }

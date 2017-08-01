@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
 import unionClassNames from 'union-class-names';
 
@@ -18,7 +19,11 @@ class UndoButton extends Component {
     const combinedClassName = unionClassNames(theme.undo, className);
     return (
       <button
-        disabled={this.props.store.getEditorState().getUndoStack().isEmpty()}
+        disabled={
+          !this.props.store ||
+          !this.props.store.getEditorState ||
+          this.props.store.getEditorState().getUndoStack().isEmpty()
+        }
         onClick={this.onClick}
         className={combinedClassName}
       >

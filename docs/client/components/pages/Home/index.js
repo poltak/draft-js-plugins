@@ -139,7 +139,7 @@ export default class App extends Component {
           </p>
           <Heading level={2}>Wait, but why?</Heading>
           <p className={styles.whyText}>
-            Facebook's rich-text editor framework
+            Facebook&apos;s rich-text editor framework
             <ExternalLink href="https://facebook.github.io/draft-js/">
               &nbsp;DraftJS&nbsp;
             </ExternalLink>
@@ -147,7 +147,7 @@ export default class App extends Component {
             <ExternalLink href="https://facebook.github.io/react/">
               &nbsp;React&nbsp;
             </ExternalLink>
-            allows you to create powerful editors. We're building a plugin architecture on top of it that aims to provide you with plug & play extensions. It comes with a set of plugins with great UX serving mobile & desktop as well as screen-readers. You can combine them in any way you want or build your own.
+            allows you to create powerful editors. We&apos;re building a plugin architecture on top of it that aims to provide you with plug & play extensions. It comes with a set of plugins with great UX serving mobile & desktop as well as screen-readers. You can combine them in any way you want or build your own.
           </p>
         </AlternateContainer>
         <Container>
@@ -184,13 +184,13 @@ export default class App extends Component {
           <div className={styles.teamSection}>
             <div className={styles.teamMember}>
               <ExternalLink className={styles.teamTwitterLink} href="https://twitter.com/jyopur">
-                <img className={styles.teamImage} src="https://pbs.twimg.com/profile_images/705714058939359233/IaJoIa78_200x200.jpg" role="presentation" />
+                <img className={styles.teamImage} src="https://avatars0.githubusercontent.com/u/2182307?v=3&s=200" role="presentation" />
                 <div>Jyoti Puri</div>
               </ExternalLink>
             </div>
             <div className={styles.teamMember}>
               <ExternalLink className={styles.teamTwitterLink} href="https://twitter.com/juliandoesstuff">
-                <img className={styles.teamImage} src="https://pbs.twimg.com/profile_images/477132877763579904/m5bFc8LF_200x200.png" role="presentation" />
+                <img className={styles.teamImage} src="https://avatars2.githubusercontent.com/u/1188186?v=3&s=200" role="presentation" />
                 <div>Julian Krispel-Samsel</div>
               </ExternalLink>
             </div>
@@ -208,7 +208,7 @@ export default class App extends Component {
             </div>
             <div className={styles.teamMember}>
               <ExternalLink className={styles.teamTwitterLink} href="https://twitter.com/nikgraf">
-                <img className={styles.teamImage} src="https://pbs.twimg.com/profile_images/535634005769457664/Ppl32NaN_200x200.jpeg" role="presentation" />
+                <img className={styles.teamImage} src="https://avatars0.githubusercontent.com/u/223045?v=3&s=200" role="presentation" />
                 <div>Nik Graf</div>
               </ExternalLink>
             </div>
@@ -226,7 +226,7 @@ export default class App extends Component {
             </div>
           </div>
           <p className={styles.specialThanks}>
-            Special thanks to all the people from Stripe for their invaluable feedback and funding Nik's efforts during the&nbsp;
+            Special thanks to all the people from Stripe for their invaluable feedback and funding Nik&apos;s efforts during the&nbsp;
             <ExternalLink href="https://stripe.com/blog/open-source-retreat-2016-grantees">
               Stripe Open Source Retreat
             </ExternalLink>.

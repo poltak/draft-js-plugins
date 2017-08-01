@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
 import unionClassNames from 'union-class-names';
 
@@ -18,7 +19,11 @@ class RedoButton extends Component {
     const combinedClassName = unionClassNames(theme.redo, className);
     return (
       <button
-        disabled={this.props.store.getEditorState().getRedoStack().isEmpty()}
+        disabled={
+          !this.props.store ||
+          !this.props.store.getEditorState ||
+          this.props.store.getEditorState().getRedoStack().isEmpty()
+        }
         onClick={this.onClick}
         className={combinedClassName}
       >

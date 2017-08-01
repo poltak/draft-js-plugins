@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { genKey } from 'draft-js';
 import { List } from 'immutable';
 import Entry from './Entry';
@@ -40,6 +41,8 @@ export default class MentionSuggestions extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.suggestions.size === 0 && this.state.isActive) {
       this.closeDropdown();
+    } else if (nextProps.suggestions.size > 0 && !this.state.isActive) {
+      this.openDropdown();
     }
   }
 
@@ -126,11 +129,12 @@ export default class MentionSuggestions extends Component {
     // Checks that the cursor is after the @ character but still somewhere in
     // the word (search term). Setting it to allow the cursor to be left of
     // the @ causes troubles due selection confusion.
+    const plainText = editorState.getCurrentContent().getPlainText();
     const selectionIsInsideWord = leaves
       .filter((leave) => leave !== undefined)
       .map(({ start, end }) => (
-        (start === 0 && anchorOffset === 1 && anchorOffset <= end) || // @ is the first character
-        (anchorOffset > start && anchorOffset <= end) // @ is in the text or at the end
+        (start === 0 && anchorOffset === 1 && plainText.charAt(anchorOffset) !== this.props.mentionTrigger && new RegExp(this.props.mentionTrigger, 'g').test(plainText) && anchorOffset <= end) || // @ is the first character
+        (anchorOffset > start + 1 && anchorOffset <= end) // @ is in the text or at the end
       ));
 
     if (selectionIsInsideWord.every((isInside) => isInside === false)) {
@@ -238,13 +242,19 @@ export default class MentionSuggestions extends Component {
   onMentionFocus = (index) => {
     const descendant = `mention-option-${this.key}-${index}`;
     this.props.ariaProps.ariaActiveDescendantID = descendant;
-    this.state.focusedOptionIndex = index;
+    this.setState({
+      focusedOptionIndex: index,
+    });
 
     // to force a re-render of the outer component to change the aria props
     this.props.store.setEditorState(this.props.store.getEditorState());
   };
 
   commitSelection = () => {
+    if (!this.props.store.getIsOpened()) {
+      return 'not-handled';
+    }
+
     this.onMentionSelect(this.props.suggestions.get(this.state.focusedOptionIndex));
     return 'handled';
   };
@@ -301,6 +311,7 @@ export default class MentionSuggestions extends Component {
 
     const {
       entryComponent,
+      popoverComponent = <div />,
       onClose, // eslint-disable-line no-unused-vars
       onOpen, // eslint-disable-line no-unused-vars
       onAddMention, // eslint-disable-line no-unused-vars, no-shadow
@@ -316,31 +327,29 @@ export default class MentionSuggestions extends Component {
       mentionPrefix, // eslint-disable-line no-unused-vars
       ...elementProps } = this.props;
 
-    return (
-      <div
-        {...elementProps}
-        className={theme.mentionSuggestions}
-        role="listbox"
-        id={`mentions-list-${this.key}`}
-        ref={(element) => { this.popover = element; }}
-      >
-        {
-          this.props.suggestions.map((mention, index) => (
-            <Entry
-              key={mention.has('id') ? mention.get('id') : mention.get('name')}
-              onMentionSelect={this.onMentionSelect}
-              onMentionFocus={this.onMentionFocus}
-              isFocused={this.state.focusedOptionIndex === index}
-              mention={mention}
-              index={index}
-              id={`mention-option-${this.key}-${index}`}
-              theme={theme}
-              searchValue={this.lastSearchValue}
-              entryComponent={entryComponent || defaultEntryComponent}
-            />
-          )).toJS()
-        }
-      </div>
+    return React.cloneElement(
+      popoverComponent,
+      {
+        ...elementProps,
+        className: theme.mentionSuggestions,
+        role: 'listbox',
+        id: `mentions-list-${this.key}`,
+        ref: (element) => { this.popover = element; },
+      },
+      this.props.suggestions.map((mention, index) => (
+        <Entry
+          key={mention.has('id') ? mention.get('id') : mention.get('name')}
+          onMentionSelect={this.onMentionSelect}
+          onMentionFocus={this.onMentionFocus}
+          isFocused={this.state.focusedOptionIndex === index}
+          mention={mention}
+          index={index}
+          id={`mention-option-${this.key}-${index}`}
+          theme={theme}
+          searchValue={this.lastSearchValue}
+          entryComponent={entryComponent || defaultEntryComponent}
+        />
+      )).toJS()
     );
   }
 }

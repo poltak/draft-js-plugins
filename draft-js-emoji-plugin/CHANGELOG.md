@@ -4,13 +4,27 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## To Be Released
+
+### Removed
+
+- Removed wrapping span with emojiCharacter class [#668](https://github.com/draft-js-plugins/draft-js-plugins/pull/668)
+
+### Changed
+
+- Make the emoji highlightable. Thanks to @AndrewHamm [#635](https://github.com/draft-js-plugins/draft-js-plugins/pull/635)
+- Update the list of Emojis from Emojione `2.1.2` to `2.2.7`. Thanks to @mzbac and @dineshvgp
+
 ### Added
 
+- Add EmojiSelect component. Thanks to @bashkos
 - Added {allowImageCache, imageType} properties to  config object.
 - Add `emojione` as a dependency.
 - Add `lodash.keys` as a dependency.
-- Update the list of Emojis from Emojione `2.1.2` to `2.2.6`. Thanks to @mzbac
 - The config object will accept a property `priorityList` which should contain Emoji entries used by EmojiOne. These entries will be show first in the EmojiSuggestions dropdown after typing `:`. Thanks to @mzbac
+
+### Fixed
+
+- Fix EmojiSuggestions unknown props warning on for `onClose`, `onOpen` and `onSearchChange` callbacks. Thanks to @julianwa [#658](https://github.com/draft-js-plugins/draft-js-plugins/pull/658)
 
 ## 1.2.3 - 2016-07-06
 

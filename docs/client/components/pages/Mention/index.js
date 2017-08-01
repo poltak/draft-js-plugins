@@ -61,6 +61,18 @@ export default class App extends Component {
             The suggestions will appear again once the user selects the word that
             that triggered the selection.
           </p>
+          <Heading level={3}>Supported Environment</Heading>
+          <ul className={styles.list}>
+            <li className={styles.listEntry}>
+              Desktop: Yes
+            </li>
+            <li className={styles.listEntry}>
+              Mobile: Yes
+            </li>
+            <li className={styles.listEntry}>
+              Screen-reader: Yes
+            </li>
+          </ul>
         </Container>
         <AlternateContainer>
           <Heading level={2}>Getting Started</Heading>
@@ -135,7 +147,7 @@ export default class App extends Component {
           </div>
           <div className={styles.param}>
             <span className={styles.paramName}>entityMutability</span>
-            <span>Can be one of: "IMMUTABLE", "SEGMENTED" or "MUTABLE". Read in detail about it
+            <span>Can be one of: &quot;IMMUTABLE&quot;, &quot;SEGMENTED&quot; or &quot;MUTABLE&quot;. Read in detail about it
               <ExternalLink
                 href="https://facebook.github.io/draft-js/docs/advanced-topics-entities.html#mutability"
               >
@@ -186,6 +198,17 @@ export default class App extends Component {
             <div className={styles.param}>
               <span className={styles.paramName}>onAddMention</span>
               <span>A callback which is triggered whenever the mention is about to be added. The first argument of this callback will contain the mention entry.</span>
+            </div>
+            <div className={styles.param}>
+              <span className={styles.paramName}>popoverComponent</span>
+              <span>Component to be used as the template for the popover (the parent of entryComponent).  Defaults to a div.</span>
+            </div>
+            <div className={styles.param}>
+              <span className={styles.paramName}>mentionSuggestionsComponent</span>
+              <span>Component to be used to render the suggestions dropdown. It must implement the same interface like <InlineCode code="MentionSuggestions" />.  Defaults to <InlineCode code="MentionSuggestions" />.</span>
+            </div>
+            <div className={styles.param}>
+              <span>Additional properties are passed to the <InlineCode code="popoverComponent" /></span>
             </div>
           </div>
           <Heading level={3}>Additional Exports</Heading>

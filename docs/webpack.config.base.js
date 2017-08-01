@@ -1,6 +1,5 @@
 var path = require('path'); // eslint-disable-line no-var
 var ExtractTextPlugin = require('extract-text-webpack-plugin'); // eslint-disable-line no-var
-var autoprefixer = require('autoprefixer'); // eslint-disable-line no-var
 
 module.exports = {
   resolve: {
@@ -25,19 +24,18 @@ module.exports = {
       'draft-js-video-plugin': path.join(__dirname, '..', 'draft-js-video-plugin', 'src'),
       react: path.join(__dirname, 'node_modules', 'react'),
     },
-    extensions: ['', '.js'],
+    extensions: ['.js'],
   },
   module: {
-    loaders: [
+    rules: [
       {
         // match all js files except example.js
         test: /^(?!.*example\.js$).*\.js$/,
-        loaders: ['babel'],
+        use: ['babel-loader'],
         exclude: /node_modules/,
-        include: path.join(__dirname, 'client'),
       }, {
         test: /\.js$/,
-        loaders: ['babel'],
+        loader: ['babel-loader'],
         include: [
           path.join(__dirname, '..', 'draft-js-plugins-editor', 'src'),
           path.join(__dirname, '..', 'draft-js-hashtag-plugin', 'src'),
@@ -60,7 +58,7 @@ module.exports = {
         ],
       }, {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&importLoaders=1&localIdentName=[local]___[hash:base64:5]!postcss-loader'),
+        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader?modules&importLoaders=1&localIdentName=[local]___[hash:base64:5]!postcss-loader' }),
         include: [
           path.join(__dirname, '..', 'draft-js-plugins-editor', 'src'),
           path.join(__dirname, '..', 'draft-js-hashtag-plugin', 'src'),
@@ -83,16 +81,26 @@ module.exports = {
           path.join(__dirname, 'client/components'),
         ],
       }, {
+        test: /\.(scss|sass)$/,
+        loader: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: 'css-loader?modules&importLoaders=1&localIdentName=[local]___[hash:base64:5]!postcss-loader!sass-loader',
+        }),
+        include: [
+          path.join(__dirname, '..', 'draft-js-emoji-plugin', 'src'),
+        ],
+      }, {
         test: /prism\.css$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css-loader'),
+        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' }),
         include: [
           path.join(__dirname, 'node_modules/prismjs/themes/'),
         ],
       }, {
         test: /\.(png|jpg|gif|ico)$/,
-        loaders: ['file?name=[name].[ext]'],
+        use: [
+          { loader: 'file-loader', options: { name: '[name].[ext]' } },
+        ],
       },
     ],
   },
-  postcss: [autoprefixer({ browsers: ['> 1%'] })],
 };

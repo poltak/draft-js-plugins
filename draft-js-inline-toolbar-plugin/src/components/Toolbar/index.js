@@ -1,35 +1,38 @@
-import React, { Component, PropTypes } from 'react';
-import { findDOMNode } from 'react-dom';
+/* eslint-disable react/no-array-index-key */
+import React from 'react';
 import { getVisibleSelectionRect } from 'draft-js';
 
 import getToolbarPosition from './getPosition';
 
-
-export default class Toolbar extends Component {
-  static propTypes = {
-    store: PropTypes.shape({
-      getItem: PropTypes.func.isRequired, // eslint-disable-line react/no-unused-prop-types
-      subscribeToItem: PropTypes.func.isRequired,
-      unsubscribeFromItem: PropTypes.func.isRequired,
-    }).isRequired,
-    structure: PropTypes.arrayOf(PropTypes.func).isRequired,
-    theme: PropTypes.shape({
-      buttonStyles: PropTypes.string.isRequired, // eslint-disable-line react/no-unused-prop-types
-      toolbarStyles: PropTypes.shape({
-        toolbar: PropTypes.string.isRequired, // eslint-disable-line react/no-unused-prop-types
-      }).isRequired,
-    }).isRequired,
+const getRelativeParent = (element) => {
+  if (!element) {
+    return null;
   }
+
+  const position = window.getComputedStyle(element).getPropertyValue('position');
+  if (position !== 'static') {
+    return element;
+  }
+
+  return getRelativeParent(element.parentElement);
+};
+
+export default class Toolbar extends React.Component {
 
   state = {
     isVisible: false,
-    style: {
-      transform: 'scale(0)',
-    },
+    position: undefined,
+
+    /**
+     * If this is set, the toolbar will render this instead of the regular
+     * structure and will also be shown when the editor loses focus.
+     * @type {Component}
+     */
+    overrideContent: undefined
   }
 
   componentWillMount() {
-    this.props.store.subscribeToItem('isVisible', this.onVisibilityChanged);
+    this.props.store.subscribeToItem('selection', this.onSelectionChanged);
   }
 
   componentDidMount() {
@@ -37,64 +40,79 @@ export default class Toolbar extends Component {
   }
 
   componentWillUnmount() {
-    this.props.store.unsubscribeFromItem('isVisible', this.onVisibilityChanged);
+    this.props.store.unsubscribeFromItem('selection', this.onSelectionChanged);
   }
 
-  onVisibilityChanged = (isVisible) => {
-    if (!isVisible) {
-      this.setState({
-        style: {
-          transform: 'scale(0)',
-        },
-      });
-      return;
-    }
+  /**
+   * This can be called by a child in order to render custom content instead
+   * of the regular structure. It's the responsibility of the callee to call
+   * this function again with `undefined` in order to reset `overrideContent`.
+   * @param {Component} overrideContent
+   */
+  onOverrideContent = (overrideContent) =>
+    this.setState({ overrideContent });
 
-    // NOTE: forced layout calculation!
-    const prevTransform = this.node.style.transform;
-    const prevTransition = this.node.style.transition;
-    this.node.style.transform = 'scale(1)';
-    this.node.style.transition = 'none';
-    const toolbarRect = this.node.getBoundingClientRect();
-    const parentRect = this.node.offsetParent.getBoundingClientRect();
-    this.node.style.transform = prevTransform;
-    this.node.style.transition = prevTransition;
-
+  onSelectionChanged = () => {
     // need to wait a tick for window.getSelection() to be accurate
     // when focusing editor with already present selection
     setTimeout(() => {
+      if (!this.toolbar) return;
+      const relativeParent = getRelativeParent(this.toolbar.parentElement);
+      const relativeRect = (relativeParent || document.body).getBoundingClientRect();
       const selectionRect = getVisibleSelectionRect(window);
-      const { top, left } = getToolbarPosition({
-        parent: parentRect,
-        selection: selectionRect,
-        scroll: {
-          left: window.scrollX,
-          top: window.scrollY,
-        },
-        toolbar: toolbarRect,
-      });
 
-      this.setState({
-        style: {
-          left,
-          top,
-          transform: 'scale(1)',
-          transition: 'transform 0.15s cubic-bezier(.3,1.2,.2,1)',
-        },
-      });
-    }, 0);
+      if (!selectionRect) return;
+
+      const position = {
+        top: (selectionRect.top - relativeRect.top) - toolbarHeight,
+        left: (selectionRect.left - relativeRect.left) + (selectionRect.width / 2),
+      };
+      this.setState({ position });
+    });
+  };
+
+  getStyle() {
+    const { store } = this.props;
+    const { overrideContent, position } = this.state;
+    const selection = store.getItem('getEditorState')().getSelection();
+    const isVisible = !selection.isCollapsed() || overrideContent;
+    const style = { ...position };
+
+    if (isVisible) {
+      style.transform = 'translate(-50%) scale(1)';
+      style.transition = 'transform 0.15s cubic-bezier(.3,1.2,.2,1)';
+    } else {
+      style.transform = 'translate(-50%) scale(0)';
+    }
+
+    return style;
   }
 
+  handleToolbarRef = (node) => {
+    this.toolbar = node;
+  };
+
   render() {
-    const { store, structure, theme } = this.props;
-    return (<div
-      className={theme.toolbarStyles.toolbar}
-      style={this.state.style}
-    >{structure.map((Element, index) => (<Element
-      key={index}
-      theme={theme.buttonStyles}
-      getEditorState={store.getItem('getEditorState')}
-      setEditorState={store.getItem('setEditorState')}
-    />))}</div>);
+    const { theme, store, structure } = this.props;
+    const { overrideContent: OverrideContent } = this.state;
+    const childrenProps = {
+      theme: theme.buttonStyles,
+      getEditorState: store.getItem('getEditorState'),
+      setEditorState: store.getItem('setEditorState'),
+      onOverrideContent: this.onOverrideContent
+    };
+
+    return (
+      <div
+        className={theme.toolbarStyles.toolbar}
+        style={this.getStyle()}
+        ref={this.handleToolbarRef}
+      >
+        {OverrideContent
+          ? <OverrideContent {...childrenProps} />
+          : structure.map((Component, index) =>
+            <Component key={index} {...childrenProps} />)}
+      </div>
+    );
   }
 }

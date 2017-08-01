@@ -1,13 +1,13 @@
 import React, {
   Component,
-  PropTypes,
 } from 'react';
+import PropTypes from 'prop-types';
 
 export default class Entry extends Component {
 
   static propTypes = {
     entryComponent: PropTypes.any.isRequired,
-    searchValue: PropTypes.string.isRequired,
+    searchValue: PropTypes.string,
     onMentionSelect: PropTypes.func
   };
 

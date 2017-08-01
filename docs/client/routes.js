@@ -11,7 +11,6 @@ import Linkify from './components/pages/Linkify';
 import Sticker from './components/pages/Sticker';
 import Undo from './components/pages/Undo';
 import Mention from './components/pages/Mention';
-import Wysiwyg from './components/pages/Wysiwyg';
 import Counter from './components/pages/Counter';
 import Playground from './components/pages/Playground';
 import Image from './components/pages/Image';
@@ -21,6 +20,7 @@ import Alignment from './components/pages/Alignment';
 import Focus from './components/pages/Focus';
 import Resizeable from './components/pages/Resizeable';
 import Video from './components/pages/Video';
+import DragNDrop from './components/pages/DragNDrop';
 
 export const routes = (
   <Route path="/" title="App" component={App}>
@@ -35,12 +35,12 @@ export const routes = (
       <Route path="plugin/sticker" title="App - Sticker" component={Sticker} />
       <Route path="plugin/undo" title="App - Undo" component={Undo} />
       <Route path="plugin/mention" title="App - Mention" component={Mention} />
-      <Route path="plugin/wysiwyg" title="App - Wysiwyg" component={Wysiwyg} />
       <Route path="plugin/counter" title="App - Counter" component={Counter} />
       <Route path="plugin/image" title="App - Image" component={Image} />
       <Route path="plugin/inline-toolbar" title="App - InlineToolbar" component={InlineToolbar} />
       <Route path="plugin/side-toolbar" title="App - SideToolbar" component={SideToolbar} />
       <Route path="plugin/video" title="App - Video" component={Video} />
+      <Route path="plugin/drag-n-drop" title="App - Drag'n'Drop" component={DragNDrop} />
     </Route>
     <Route path="playground" title="App - Development Playground" component={Playground} />
     <Route path="*" title="404: Not Found" component={NotFound} />
